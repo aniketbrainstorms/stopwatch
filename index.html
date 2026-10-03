@@ -1,45 +1,769 @@
 <!doctype html>
 <html lang="en">
 <head>
-<!-- PWA manifest for Android and browsers -->
-<link rel="manifest" href="manifest.json">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#f8f5f1">
+  <title>Study</title>
 
-<link rel="icon" type="image/png" href="icon.png">
-<link rel="apple-touch-icon" href="icon.png">
+  <!-- PWA manifest and icons -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
 
-<!-- iOS standalone app behavior -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Study">
+  <!-- iOS standalone app behavior -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Study">
 
-<!-- Browser theme color -->
-<meta name="theme-color" content="#f8f5f1">
-<meta charset="utf-8">  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"><meta name="theme-color" content="#f8f5f1"><title>Study</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{--paper:#f8f5f1;--surface:#fffdfa;--ink:#141311;--muted:#918c86;--line:#e7e1da;--pill:#f3efeb;--accent:#e8751a;box-sizing:border-box}*{box-sizing:inherit;margin:0}html,body{min-height:100%;background:#eeeae5;touch-action:manipulation}body{font-family:"Hanken Grotesk",system-ui,sans-serif;color:var(--ink);display:flex;justify-content:center}button,input,select{font:inherit}button{border:0;color:inherit;cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-.app{width:100%;max-width:430px;min-height:100dvh;background:var(--surface);display:flex;flex-direction:column;padding:calc(22px + env(safe-area-inset-top,0px)) 24px calc(24px + env(safe-area-inset-bottom,0px));overflow:hidden}header{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;width:100%;font-size:20px;font-weight:500}header h1{text-align:center;font-size:20px;font-weight:500}header button{width:42px;height:42px;background:transparent;border-radius:50%;display:grid;place-items:center}header button:hover{background:var(--pill)}svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.stage{flex:1;min-height:380px;display:grid;place-items:center;padding:24px 0 14px}.dial{position:relative;width:min(78vw,330px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center}.dial:before{content:"";position:absolute;inset:0;border-radius:50%;border:5px solid rgba(255,177,111,.11)}.dial:after{content:"";position:absolute;inset:5px;border-radius:50%;background:radial-gradient(circle at 68% 40%,rgba(255,169,92,.66),rgba(255,198,148,.3) 49%,rgba(255,224,199,.05) 73%);-webkit-mask:conic-gradient(from 0deg,#000 var(--progress,0deg),transparent var(--progress,0deg));mask:conic-gradient(from 0deg,#000 var(--progress,0deg),transparent var(--progress,0deg));transition:mask .6s ease,-webkit-mask .6s ease;animation:float 15s ease-in-out infinite alternate;pointer-events:none}.dial.running:after{animation:float 15s ease-in-out infinite alternate,breathe 5s ease-in-out infinite}@keyframes float{to{transform:rotate(8deg) scale(1.015)}}@keyframes breathe{50%{opacity:.72}}@media(prefers-reduced-motion:reduce){.dial:after{animation:none!important}}
-.read{position:relative;z-index:1;text-align:center}.timer{font-size:clamp(46px,14vw,59px);font-weight:500;letter-spacing:-.035em;line-height:1;font-variant-numeric:tabular-nums}.remaining{margin-top:11px;font-size:18px;color:var(--muted);font-variant-numeric:tabular-nums}.remaining.over{color:var(--accent)}
-.stats{display:flex;width:100%;margin:0 0 24px}.stats>div{flex:1;text-align:center}.stats>div+div{border-left:1px solid var(--line)}.stats small{display:block;margin-bottom:6px;color:var(--muted);font-size:12px;letter-spacing:.17em}.stats strong{font-size:27px;font-weight:400;font-variant-numeric:tabular-nums}.status{width:100%;display:flex;align-items:center;gap:15px;padding:14px 16px 14px 14px;background:var(--pill);border-radius:26px;margin-bottom:24px}.target{width:48px;height:48px;flex:none;border-radius:50%;background:#ebe5df;display:grid;place-items:center}.status-copy{min-width:0;flex:1}.status-copy strong{display:block;font-size:17px;font-weight:400}.status-copy span{display:block;margin-top:2px;color:var(--muted);font-size:15px}.status>svg{width:19px;color:#24211f}
-.controls{display:flex;align-items:center;justify-content:center;gap:14px}.control{width:58px;height:58px;border-radius:50%;background:var(--pill);display:grid;place-items:center;transition:transform .15s,background .2s}.control:active{transform:scale(.94)}.control.primary{width:138px;height:62px;border-radius:32px;background:#f0ebe5}.control.primary svg{width:25px;height:25px;fill:var(--ink);stroke:none}.control svg{width:23px;height:23px}.control.stop svg{width:18px;height:18px;fill:var(--ink);stroke:none}
-.scrim{position:fixed;inset:0;background:rgba(20,17,14,.22);opacity:0;pointer-events:none;transition:opacity .25s;z-index:3}.sheet{position:fixed;z-index:4;left:50%;bottom:0;width:min(430px,100%);padding:12px 24px calc(24px + env(safe-area-inset-bottom,0px));background:var(--surface);border-radius:28px 28px 0 0;transform:translate(-50%,105%);transition:transform .3s ease;box-shadow:0 -10px 35px rgba(40,30,20,.12)}.sheet.open{transform:translate(-50%,0)}.scrim.open{opacity:1;pointer-events:auto}.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:4px 0 18px}.sheet-head h2{font-size:24px;font-weight:500}.close{width:36px;height:36px;background:var(--pill);border-radius:50%;display:grid;place-items:center}.close svg{width:18px}.setting{padding:17px 0;border-top:1px solid var(--line)}.setting label{display:block;font-size:15px;color:var(--muted);margin-bottom:9px}.goal-row{display:flex;gap:8px}.goal-option{flex:1;padding:11px 5px;background:var(--pill);border-radius:14px;font-size:15px}.goal-option.selected{background:#ffe5d1}.history{list-style:none;max-height:150px;overflow:auto}.history li{display:flex;justify-content:space-between;padding:9px 0;font-size:15px}.history li+li{border-top:1px solid var(--line)}.empty{color:var(--muted);font-size:14px}.danger{width:100%;padding:13px;border-radius:15px;background:#f7e7df;color:#a74d25;margin-top:4px}@media(min-width:600px){.app{min-height:calc(100dvh - 52px);margin:26px 0;border-radius:36px;box-shadow:0 18px 50px rgba(55,42,30,.12)}}
-</style><style>.sheet.history-mode .goal-setting,.sheet.history-mode .action-setting{display:none}</style></head>
-<body><main class="app" aria-label="Study timer">
-<header><button id="menu" aria-label="Open settings"><svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h13M3 17h8"/></svg></button><h1>Study</h1><button id="historyBtn" aria-label="Open history"><svg viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1M3.5 4v4.5H8M12 7.5V12l3 2"/></svg></button></header>
-<section class="stage"><div class="dial" id="dial"><div class="read"><div class="timer" id="timer">0:00:00</div><div class="remaining" id="remaining">8h 00m left</div></div></div></section>
-<section class="stats" aria-label="Study statistics"><div><small>TODAY</small><strong id="today">0:00:00</strong></div><div><small>GOAL</small><strong id="goal">8:00:00</strong></div></section>
- 
-<div class="controls"><button class="control" id="reset" aria-label="Reset current session"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.6-5.9M4 4v4.5h4.5"/></svg></button><button class="control primary" id="toggle" aria-label="Start study session"><svg id="toggleIcon" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg></button><button class="control stop" id="stop" aria-label="Stop and save current session"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></button></div></main>
-<div class="scrim" id="scrim"></div><aside class="sheet" id="sheet" aria-label="Study settings" aria-hidden="true"><div class="sheet-head"><h2 id="sheetTitle">Study settings</h2><button class="close" id="close" aria-label="Close panel"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="setting goal-setting"><label>Daily goal</label><div class="goal-row" id="goals"></div></div><div class="setting history-setting"><label>Recent days</label><ul class="history" id="history"></ul></div><div class="setting action-setting"><button class="danger" id="clear">Reset today's data</button></div></aside>
-<script>
-const KEY="study-tracker-v2",DEFAULT_GOAL=8*3600,todayKey=()=>new Date().toISOString().slice(0,10),$=id=>document.getElementById(id),pad=n=>String(n).padStart(2,"0");let data=load();
-function load(){try{const saved=JSON.parse(localStorage.getItem(KEY));if(saved&&saved.day)return{session:0,...saved}}catch{}return{day:todayKey(),goal:DEFAULT_GOAL,total:0,session:0,active:null,history:[]}}
-function save(){localStorage.setItem(KEY,JSON.stringify(data))}function secondsNow(){return data.active?data.active.elapsed+(Date.now()-data.active.startedAt)/1000:data.total}function currentTotal(){return data.total+(data.active?secondsNow()-data.active.elapsed:0)}function sessionNow(){return(data.session||0)+(data.active?(Date.now()-data.active.startedAt)/1000:0)}function hms(s){s=Math.max(0,Math.floor(s));return Math.floor(s/3600)+":"+pad(Math.floor(s%3600/60))+":"+pad(s%60)}function hm(s){s=Math.max(0,Math.floor(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h}h ${pad(m)}m`:`${m}m`}
-function rollover(){const now=todayKey();if(data.day===now)return;if(data.active){data.total+=secondsNow()-data.active.elapsed;data.active=null}if(data.total>0)data.history.unshift({day:data.day,total:Math.floor(data.total)});data.history=data.history.slice(0,14);data.day=now;data.total=0;data.session=0;save()}
-function render(){rollover();const total=currentTotal(),goal=data.goal,over=total>=goal,fraction=Math.min(total/goal,1);$("timer").textContent=hms(sessionNow());$("today").textContent=hms(total);$("goal").textContent=hms(goal);$("dial").style.setProperty("--progress",fraction*360+"deg");$("dial").classList.toggle("running",!!data.active);const rem=$("remaining");rem.classList.toggle("over",over);rem.textContent=over?(total>goal?"+"+hm(total-goal):"Goal reached"):hm(goal-total)+" left"; $("toggleIcon").innerHTML=data.active?'<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>':'<path d="M7 4l13 8-13 8z"/>';$("toggle").setAttribute("aria-label",data.active?"Pause study session":"Start study session");document.title=hms(total)+" · Study"}
-function pause(){if(!data.active)return;const d=(Date.now()-data.active.startedAt)/1000;data.total+=d;data.session=(data.session||0)+d;data.active=null;save();render()}$("toggle").onclick=()=>{rollover();if(data.active)pause();else{data.active={startedAt:Date.now(),elapsed:0};save();render()}};$("stop").onclick=()=>{pause();data.session=0;save();render()};$("reset").onclick=()=>{const wasActive=!!data.active;pause();data.total=Math.max(0,data.total-(data.session||0));data.session=0;if(wasActive)data.active={startedAt:Date.now(),elapsed:0};save();render()};
-function openSheet(mode="settings"){renderHistory();$("sheet").classList.toggle("history-mode",mode==="history");$("sheetTitle").textContent=mode==="history"?"Study history":"Study settings";$("sheet").setAttribute("aria-label",mode==="history"?"Study history":"Study settings");$("sheet").classList.add("open");$("scrim").classList.add("open");$("sheet").setAttribute("aria-hidden","false")}function closeSheet(){$("sheet").classList.remove("open");$("scrim").classList.remove("open");$("sheet").setAttribute("aria-hidden","true")}$("menu").onclick=()=>openSheet("settings");$("historyBtn").onclick=()=>openSheet("history");$("close").onclick=closeSheet;$("scrim").onclick=closeSheet;
-function renderHistory(){const list=$("history");list.innerHTML="";const entries=[{day:"Today",total:Math.floor(currentTotal())},...data.history];if(entries.length===1){list.innerHTML='<li class="empty">Your completed days will appear here.</li>';return}entries.forEach(x=>{const li=document.createElement("li");li.innerHTML=`<span>${x.day}</span><strong>${hms(x.total)}</strong>`;list.append(li)})}
-[[4,"4h"],[6,"6h"],[8,"8h"],[10,"10h"]].forEach(([hours,label])=>{const b=document.createElement("button");b.className="goal-option";b.textContent=label;b.onclick=()=>{data.goal=hours*3600;save();render();renderGoals()};$("goals").append(b)});function renderGoals(){[...$("goals").children].forEach(b=>b.classList.toggle("selected",+b.textContent.slice(0,-1)===data.goal/3600))}$("clear").onclick=()=>{if(confirm("Reset today's total and session history for today?")){data.total=0;data.session=0;data.active=null;save();render();renderHistory()}};renderGoals();render();setInterval(render,500);document.addEventListener("visibilitychange",()=>{if(!document.hidden)render()});["gesturestart","gesturechange","gestureend"].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));document.addEventListener("touchmove",e=>{if(e.scale&&e.scale!==1)e.preventDefault()},{passive:false});["gesturestart","gesturechange","gestureend"].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));document.addEventListener("touchmove",e=>{if(e.scale&&e.scale!==1)e.preventDefault()},{passive:false});
-</script></body></html>
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ---------- Base ---------- */
+    :root {
+      --paper: #f8f5f1;
+      --surface: #fffdfa;
+      --ink: #141311;
+      --muted: #918c86;
+      --line: #e7e1da;
+      --pill: #f3efeb;
+      --accent: #e8751a;
+      box-sizing: border-box;
+    }
+
+    * {
+      box-sizing: inherit;
+      margin: 0;
+    }
+
+    html, body {
+      min-height: 100%;
+      background: #eeeae5;
+      touch-action: manipulation; /* stops double-tap zoom */
+    }
+
+    body {
+      font-family: "Hanken Grotesk", system-ui, sans-serif;
+      color: var(--ink);
+      display: flex;
+      justify-content: center;
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    svg {
+      width: 24px;
+      height: 24px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ---------- App shell ---------- */
+    .app {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100dvh;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      padding:
+        calc(22px + env(safe-area-inset-top, 0px))
+        24px
+        calc(24px + env(safe-area-inset-bottom, 0px));
+      overflow: hidden;
+    }
+
+    /* ---------- Header ---------- */
+    header {
+      display: grid;
+      grid-template-columns: 42px 1fr 42px;
+      align-items: center;
+      width: 100%;
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    header h1 {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    header button {
+      width: 42px;
+      height: 42px;
+      background: transparent;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+    }
+
+    header button:hover {
+      background: var(--pill);
+    }
+
+    /* ---------- Dial ---------- */
+    .stage {
+      flex: 1;
+      min-height: 380px;
+      display: grid;
+      place-items: center;
+      padding: 24px 0 14px;
+    }
+
+    .dial {
+      position: relative;
+      width: min(78vw, 330px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+    }
+
+    /* faint outer ring */
+    .dial::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 5px solid rgba(255, 177, 111, .11);
+    }
+
+    /* progress glow, revealed by a conic mask */
+    .dial::after {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle at 68% 40%,
+        rgba(255, 169, 92, .66),
+        rgba(255, 198, 148, .3) 49%,
+        rgba(255, 224, 199, .05) 73%
+      );
+      -webkit-mask: conic-gradient(from 0deg, #000 var(--progress, 0deg), transparent var(--progress, 0deg));
+              mask: conic-gradient(from 0deg, #000 var(--progress, 0deg), transparent var(--progress, 0deg));
+      transition: mask .6s ease, -webkit-mask .6s ease;
+      animation: float 15s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    .dial.running::after {
+      animation:
+        float 15s ease-in-out infinite alternate,
+        breathe 5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      to { transform: rotate(8deg) scale(1.015); }
+    }
+
+    @keyframes breathe {
+      50% { opacity: .72; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .dial::after { animation: none !important; }
+    }
+
+    .read {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .timer {
+      font-size: clamp(46px, 14vw, 59px);
+      font-weight: 500;
+      letter-spacing: -.035em;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .remaining {
+      margin-top: 11px;
+      font-size: 18px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .remaining.over {
+      color: var(--accent);
+    }
+
+    /* ---------- Stats ---------- */
+    .stats {
+      display: flex;
+      width: 100%;
+      margin: 0 0 36px;
+    }
+
+    .stats > div {
+      flex: 1;
+      text-align: center;
+    }
+
+    .stats > div + div {
+      border-left: 1px solid var(--line);
+    }
+
+    .stats small {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .17em;
+    }
+
+    .stats strong {
+      font-size: 27px;
+      font-weight: 400;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ---------- Controls ---------- */
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .control {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: var(--pill);
+      display: grid;
+      place-items: center;
+      transition: transform .15s, background .2s;
+    }
+
+    .control:active {
+      transform: scale(.94);
+    }
+
+    .control svg {
+      width: 23px;
+      height: 23px;
+    }
+
+    .control.primary {
+      width: 138px;
+      height: 62px;
+      border-radius: 32px;
+      background: #f0ebe5;
+    }
+
+    .control.primary svg {
+      width: 25px;
+      height: 25px;
+      fill: var(--ink);
+      stroke: none;
+    }
+
+    .control.stop svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--ink);
+      stroke: none;
+    }
+
+    /* ---------- Bottom sheet ---------- */
+    .scrim {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 17, 14, .22);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s;
+      z-index: 3;
+    }
+
+    .scrim.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sheet {
+      position: fixed;
+      z-index: 4;
+      left: 50%;
+      bottom: 0;
+      width: min(430px, 100%);
+      padding: 12px 24px calc(24px + env(safe-area-inset-bottom, 0px));
+      background: var(--surface);
+      border-radius: 28px 28px 0 0;
+      transform: translate(-50%, 105%);
+      transition: transform .3s ease;
+      box-shadow: 0 -10px 35px rgba(40, 30, 20, .12);
+    }
+
+    .sheet.open {
+      transform: translate(-50%, 0);
+    }
+
+    /* history mode hides the goal + reset sections */
+    .sheet.history-mode .goal-setting,
+    .sheet.history-mode .action-setting {
+      display: none;
+    }
+
+    .sheet-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 0 18px;
+    }
+
+    .sheet-head h2 {
+      font-size: 24px;
+      font-weight: 500;
+    }
+
+    .close {
+      width: 36px;
+      height: 36px;
+      background: var(--pill);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+    }
+
+    .close svg {
+      width: 18px;
+    }
+
+    .setting {
+      padding: 17px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .setting label {
+      display: block;
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 9px;
+    }
+
+    .goal-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .goal-option {
+      flex: 1;
+      padding: 11px 5px;
+      background: var(--pill);
+      border-radius: 14px;
+      font-size: 15px;
+    }
+
+    .goal-option.selected {
+      background: #ffe5d1;
+    }
+
+    .history {
+      list-style: none;
+      max-height: 150px;
+      overflow: auto;
+    }
+
+    .history li {
+      display: flex;
+      justify-content: space-between;
+      padding: 9px 0;
+      font-size: 15px;
+    }
+
+    .history li + li {
+      border-top: 1px solid var(--line);
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .danger {
+      width: 100%;
+      padding: 13px;
+      border-radius: 15px;
+      background: #f7e7df;
+      color: #a74d25;
+      margin-top: 4px;
+    }
+
+    /* ---------- Desktop preview ---------- */
+    @media (min-width: 600px) {
+      .app {
+        min-height: calc(100dvh - 52px);
+        margin: 26px 0;
+        border-radius: 36px;
+        box-shadow: 0 18px 50px rgba(55, 42, 30, .12);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app" aria-label="Study timer">
+
+    <header>
+      <button id="menu" aria-label="Open settings">
+        <svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h13M3 17h8"/></svg>
+      </button>
+      <h1>Study</h1>
+      <button id="historyBtn" aria-label="Open history">
+        <svg viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1M3.5 4v4.5H8M12 7.5V12l3 2"/></svg>
+      </button>
+    </header>
+
+    <section class="stage">
+      <div class="dial" id="dial">
+        <div class="read">
+          <div class="timer" id="timer">0:00:00</div>
+          <div class="remaining" id="remaining">8h 00m left</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="Study statistics">
+      <div>
+        <small>TODAY</small>
+        <strong id="today">0:00:00</strong>
+      </div>
+      <div>
+        <small>GOAL</small>
+        <strong id="goal">8:00:00</strong>
+      </div>
+    </section>
+
+    <div class="controls">
+      <button class="control" id="reset" aria-label="Discard current session">
+        <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.6-5.9M4 4v4.5h4.5"/></svg>
+      </button>
+
+      <button class="control primary" id="toggle" aria-label="Start study session">
+        <svg id="toggleIcon" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>
+      </button>
+
+      <button class="control stop" id="stop" aria-label="Stop and save current session">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+      </button>
+    </div>
+
+  </main>
+
+  <div class="scrim" id="scrim"></div>
+
+  <aside class="sheet" id="sheet" aria-label="Study settings" aria-hidden="true">
+    <div class="sheet-head">
+      <h2 id="sheetTitle">Study settings</h2>
+      <button class="close" id="close" aria-label="Close panel">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <div class="setting goal-setting">
+      <label>Daily goal</label>
+      <div class="goal-row" id="goals"></div>
+    </div>
+
+    <div class="setting history-setting">
+      <label>Recent days</label>
+      <ul class="history" id="history"></ul>
+    </div>
+
+    <div class="setting action-setting">
+      <button class="danger" id="clear">Reset today's data</button>
+    </div>
+  </aside>
+
+  <script>
+    /* =====================================================
+       Study timer
+       -----------------------------------------------------
+       data.total   seconds studied today (saved sessions)
+       data.session seconds in the current session (saved part)
+       data.active  { startedAt } while the timer is running
+       ===================================================== */
+
+    const STORAGE_KEY = "study-tracker-v2";
+    const DEFAULT_GOAL = 8 * 3600;
+
+    const $ = id => document.getElementById(id);
+    const pad = n => String(n).padStart(2, "0");
+    const todayKey = () => new Date().toISOString().slice(0, 10);
+
+    /* ---------- Storage ---------- */
+
+    function load() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (saved && saved.day) return { session: 0, ...saved };
+      } catch {}
+      return {
+        day: todayKey(),
+        goal: DEFAULT_GOAL,
+        total: 0,
+        session: 0,
+        active: null,
+        history: []
+      };
+    }
+
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    let data = load();
+
+    /* ---------- Time helpers ---------- */
+
+    // Seconds elapsed since the running timer started (0 if paused)
+    function runningSeconds() {
+      return data.active ? (Date.now() - data.active.startedAt) / 1000 : 0;
+    }
+
+    function todayTotal() {
+      return data.total + runningSeconds();
+    }
+
+    function sessionTotal() {
+      return (data.session || 0) + runningSeconds();
+    }
+
+    // 3725 -> "1:02:05"
+    function hms(s) {
+      s = Math.max(0, Math.floor(s));
+      return Math.floor(s / 3600) + ":" + pad(Math.floor(s % 3600 / 60)) + ":" + pad(s % 60);
+    }
+
+    // 3725 -> "1h 02m"
+    function hm(s) {
+      s = Math.max(0, Math.floor(s));
+      const h = Math.floor(s / 3600);
+      const m = Math.floor(s % 3600 / 60);
+      return h ? `${h}h ${pad(m)}m` : `${m}m`;
+    }
+
+    /* ---------- Day rollover ---------- */
+
+    function rollover() {
+      const now = todayKey();
+      if (data.day === now) return;
+
+      if (data.active) {
+        data.total += runningSeconds();
+        data.active = null;
+      }
+      if (data.total > 0) {
+        data.history.unshift({ day: data.day, total: Math.floor(data.total) });
+      }
+      data.history = data.history.slice(0, 14);
+
+      data.day = now;
+      data.total = 0;
+      data.session = 0;
+      save();
+    }
+
+    /* ---------- Render ---------- */
+
+    function render() {
+      rollover();
+
+      const total = todayTotal();
+      const goal = data.goal;
+      const reached = total >= goal;
+      const fraction = Math.min(total / goal, 1);
+
+      $("timer").textContent = hms(sessionTotal());
+      $("today").textContent = hms(total);
+      $("goal").textContent = hms(goal);
+
+      $("dial").style.setProperty("--progress", fraction * 360 + "deg");
+      $("dial").classList.toggle("running", !!data.active);
+
+      const remaining = $("remaining");
+      remaining.classList.toggle("over", reached);
+      if (!reached) {
+        remaining.textContent = hm(goal - total) + " left";
+      } else if (total > goal) {
+        remaining.textContent = "+" + hm(total - goal);
+      } else {
+        remaining.textContent = "Goal reached";
+      }
+
+      $("toggleIcon").innerHTML = data.active
+        ? '<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>'   // pause icon
+        : '<path d="M7 4l13 8-13 8z"/>';              // play icon
+      $("toggle").setAttribute(
+        "aria-label",
+        data.active ? "Pause study session" : "Start study session"
+      );
+
+      document.title = hms(sessionTotal()) + " · Study";
+    }
+
+    /* ---------- Timer actions ---------- */
+
+    function start() {
+      data.active = { startedAt: Date.now() };
+      save();
+      render();
+    }
+
+    // Move running time into today's total and the current session
+    function pause() {
+      if (!data.active) return;
+      const elapsed = runningSeconds();
+      data.total += elapsed;
+      data.session = (data.session || 0) + elapsed;
+      data.active = null;
+      save();
+      render();
+    }
+
+    // Play / pause
+    $("toggle").onclick = () => {
+      rollover();
+      data.active ? pause() : start();
+    };
+
+    // Stop: end the session, keep its time in TODAY, big timer back to 0
+    $("stop").onclick = () => {
+      pause();
+      data.session = 0;
+      save();
+      render();
+    };
+
+    // Reset: throw away the current session's time, keep running if it was
+    $("reset").onclick = () => {
+      const wasRunning = !!data.active;
+      pause();
+      data.total = Math.max(0, data.total - (data.session || 0));
+      data.session = 0;
+      if (wasRunning) data.active = { startedAt: Date.now() };
+      save();
+      render();
+    };
+
+    /* ---------- Bottom sheet ---------- */
+
+    function openSheet(mode = "settings") {
+      const isHistory = mode === "history";
+      renderHistory();
+      $("sheet").classList.toggle("history-mode", isHistory);
+      $("sheetTitle").textContent = isHistory ? "Study history" : "Study settings";
+      $("sheet").setAttribute("aria-label", isHistory ? "Study history" : "Study settings");
+      $("sheet").classList.add("open");
+      $("scrim").classList.add("open");
+      $("sheet").setAttribute("aria-hidden", "false");
+    }
+
+    function closeSheet() {
+      $("sheet").classList.remove("open");
+      $("scrim").classList.remove("open");
+      $("sheet").setAttribute("aria-hidden", "true");
+    }
+
+    $("menu").onclick = () => openSheet("settings");
+    $("historyBtn").onclick = () => openSheet("history");
+    $("close").onclick = closeSheet;
+    $("scrim").onclick = closeSheet;
+
+    function renderHistory() {
+      const list = $("history");
+      list.innerHTML = "";
+
+      const entries = [{ day: "Today", total: Math.floor(todayTotal()) }, ...data.history];
+
+      if (entries.length === 1) {
+        list.innerHTML = '<li class="empty">Your completed days will appear here.</li>';
+        return;
+      }
+
+      entries.forEach(entry => {
+        const li = document.createElement("li");
+        li.innerHTML = `<span>${entry.day}</span><strong>${hms(entry.total)}</strong>`;
+        list.append(li);
+      });
+    }
+
+    /* ---------- Goal picker ---------- */
+
+    [[4, "4h"], [6, "6h"], [8, "8h"], [10, "10h"]].forEach(([hours, label]) => {
+      const btn = document.createElement("button");
+      btn.className = "goal-option";
+      btn.textContent = label;
+      btn.onclick = () => {
+        data.goal = hours * 3600;
+        save();
+        render();
+        renderGoals();
+      };
+      $("goals").append(btn);
+    });
+
+    function renderGoals() {
+      [...$("goals").children].forEach(btn => {
+        btn.classList.toggle("selected", parseInt(btn.textContent) === data.goal / 3600);
+      });
+    }
+
+    /* ---------- Reset today's data ---------- */
+
+    $("clear").onclick = () => {
+      if (!confirm("Reset today's total and session history for today?")) return;
+      data.total = 0;
+      data.session = 0;
+      data.active = null;
+      save();
+      render();
+      renderHistory();
+    };
+
+    /* ---------- Disable pinch / double-tap zoom (iOS) ---------- */
+
+    ["gesturestart", "gesturechange", "gestureend"].forEach(type => {
+      document.addEventListener(type, e => e.preventDefault());
+    });
+
+    document.addEventListener("touchmove", e => {
+      if (e.scale && e.scale !== 1) e.preventDefault();
+    }, { passive: false });
+
+    /* ---------- Init ---------- */
+
+    renderGoals();
+    render();
+    setInterval(render, 500);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) render();
+    });
+  </script>
+</body>
+</html>
