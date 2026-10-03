@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#f8f5f1">
+  <meta name="theme-color" content="#fffdfa">
   <title>Study</title>
 
   <!-- PWA manifest and icons -->
@@ -40,7 +40,7 @@
 
     html, body {
       min-height: 100%;
-      background: #eeeae5;
+      background: var(--surface); /* same as the app, so the status bar area blends in */
       touch-action: manipulation; /* stops double-tap zoom */
     }
 
@@ -416,6 +416,10 @@
 
     /* ---------- Desktop preview ---------- */
     @media (min-width: 600px) {
+      html, body {
+        background: #eeeae5;
+      }
+
       .app {
         min-height: calc(100dvh - 52px);
         margin: 26px 0;
