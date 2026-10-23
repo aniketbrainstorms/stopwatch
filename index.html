@@ -21,6 +21,46 @@
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
+    /* ---------- Custom time inputs ---------- */
+    .time-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    
+    .time-field {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--pill);
+      border-radius: 14px;
+      padding: 0 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    
+    .time-field input {
+      width: 100%;
+      min-width: 0;
+      padding: 11px 0;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      font-size: 16px; /* 16px stops iOS zoom-on-focus */
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      outline: none;
+    }
+    
+    .set-btn {
+      padding: 11px 16px;
+      border-radius: 14px;
+      background: #ffe5d1;
+      font-size: 15px;
+    }
+    
     /* ---------- Base ---------- */
     :root {
       --paper: #f8f5f1;
@@ -317,6 +357,8 @@
       transform: translate(-50%, 105%);
       transition: transform .3s ease;
       box-shadow: 0 -10px 35px rgba(40, 30, 20, .12);
+      max-height: 92dvh;
+      overflow-y: auto;
     }
 
     .sheet.open {
@@ -539,6 +581,21 @@
     <div class="setting goal-setting">
       <label>Daily goal</label>
       <div class="goal-row" id="goals"></div>
+      <div class="time-row">
+        <div class="time-field"><input id="goalH" type="number" inputmode="numeric" min="0" max="99" placeholder="0">h</div>
+        <div class="time-field"><input id="goalM" type="number" inputmode="numeric" min="0" max="59" placeholder="0">m</div>
+        <button class="set-btn" id="setGoal">Set</button>
+      </div>
+    </div>
+    
+    <div class="setting action-setting">
+      <label>Stopwatch time</label>
+      <div class="time-row">
+        <div class="time-field"><input id="swH" type="number" inputmode="numeric" min="0" max="99" placeholder="0">h</div>
+        <div class="time-field"><input id="swM" type="number" inputmode="numeric" min="0" max="59" placeholder="0">m</div>
+        <div class="time-field"><input id="swS" type="number" inputmode="numeric" min="0" max="59" placeholder="0">s</div>
+        <button class="set-btn" id="setWatch">Set</button>
+      </div>
     </div>
 
     <div class="setting history-setting">
@@ -565,7 +622,10 @@
 
     const $ = id => document.getElementById(id);
     const pad = n => String(n).padStart(2, "0");
-    const todayKey = () => new Date().toISOString().slice(0, 10);
+    const todayKey = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  };
 
     /* ---------- Storage ---------- */
 
@@ -727,6 +787,7 @@
     function openSheet(mode = "settings") {
       const isHistory = mode === "history";
       renderHistory();
+      syncInputs();
       $("sheet").classList.toggle("history-mode", isHistory);
       $("sheetTitle").textContent = isHistory ? "Study history" : "Study settings";
       $("sheet").setAttribute("aria-label", isHistory ? "Study history" : "Study settings");
@@ -772,6 +833,8 @@
       btn.textContent = label;
       btn.onclick = () => {
         data.goal = hours * 3600;
+        $("goalH").value = hours;
+        $("goalM").value = 0;
         save();
         render();
         renderGoals();
@@ -785,6 +848,42 @@
       });
     }
 
+    /* ---------- Custom goal + stopwatch time ---------- */
+
+    const num = id => Math.max(0, parseInt($(id).value, 10) || 0);
+    
+    function syncInputs() {
+      const g = Math.floor(data.goal);
+      $("goalH").value = Math.floor(g / 3600);
+      $("goalM").value = Math.floor(g % 3600 / 60);
+    
+      const s = Math.floor(sessionTotal());
+      $("swH").value = Math.floor(s / 3600);
+      $("swM").value = Math.floor(s % 3600 / 60);
+      $("swS").value = s % 60;
+    }
+    
+    $("setGoal").onclick = () => {
+      const secs = num("goalH") * 3600 + num("goalM") * 60;
+      if (secs <= 0) return;           // goal must be > 0 (avoids divide-by-zero)
+      data.goal = secs;
+      save();
+      render();
+      renderGoals();
+    };
+    
+    $("setWatch").onclick = () => {
+      const secs = num("swH") * 3600 + num("swM") * 60 + num("swS");
+      const wasRunning = !!data.active;
+      pause();                          // fold running time into session/total
+      const delta = secs - (data.session || 0);
+      data.total = Math.max(0, data.total + delta);   // keep TODAY in sync
+      data.session = secs;
+      if (wasRunning) data.active = { startedAt: Date.now() };
+      save();
+      render();
+    };
+    
     /* ---------- Reset today's data ---------- */
 
     $("clear").onclick = () => {
